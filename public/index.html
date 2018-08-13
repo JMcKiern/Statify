@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Statify</title>
+		
+		<!--Bootstrap-->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		
+		<!--Less-->
+		<link rel="stylesheet/less" type="text/css" href="styles.less" />
+		<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/3.0.0/less.min.js" ></script>
+		
+		<!--Fonts-->
+		<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+	</head>
+
+	<body>
+		<div id="login">
+			<div class="welcome-text">
+				<div class="title">Statify</div>
+				<div class="desc">Connect to Spotify to view top artists and tracks</div>
+			</div>
+			<a href="/login" class="btn button">Connect</a>
+			<div id="login-error">
+			</div>
+		</div>
+		<div id="lower-page" >
+			<div id="logged-in">
+			</div>
+			<div id="dummy-container">
+			</div>
+			<div class="container stats-container">
+				<div id="stats-buttons">
+					<div class="btn-group btn-group-toggle m-4" data-toggle="buttons">
+						<label class="btn button active" onclick="displayArtists()">
+							<input type="radio" name="options" id="radio-artists" autocomplete="off" checked> Top Artists
+						</label>
+						<label class="btn button" onclick="displayTracks()">
+							<input type="radio" name="options" id="option2" autocomplete="off"> Top Tracks
+						</label>
+					</div>
+				</div>
+				<div id="top-artists-container">
+					<div class="Rtable Rtable--collapse js-RtableTabs">
+					
+						<div class="Tablist" role="tablist">
+							<button class="Tab" role="tab" aria-selected="true">Short</button>
+							<button class="Tab" role="tab" aria-selected="false">Medium</button>
+							<button class="Tab" role="tab" aria-selected="false">Long</button>
+						</div>
+							
+						<div style="order:0;" class="Rtable-cell Rtable-cell--head"><h5>Short Term<br>(4 weeks)</h5></div>
+						<div id="top-artists-short_term-grid">
+						</div>
+							
+						<div style="order:0;" class="Rtable-cell Rtable-cell--head"><h5>Medium Term<br>(6 Months)</h5></div>
+						<div id="top-artists-medium_term-grid">
+						</div>
+						<div style="order:0;" class="Rtable-cell Rtable-cell--head"><h5>Long Term<br>(All time)</h5></div>
+						<div id="top-artists-long_term-grid">
+						</div>
+					</div>
+				</div>
+				<div id="top-tracks-container" style="display: none">
+					<div class="Rtable Rtable--collapse  js-RtableTabs">
+					
+						<div class="Tablist" role="tablist"> 
+							<button class="Tab" role="tab" aria-selected="true">Short</button>
+							<button class="Tab" role="tab" aria-selected="false">Medium</button>
+							<button class="Tab" role="tab" aria-selected="false">Long</button>
+						</div>
+							
+						<div style="order:0;" class="Rtable-cell Rtable-cell--head"><h5>Short Term<br>(4 weeks)</h5></div>
+						<div id="top-tracks-short_term-grid">
+						</div>
+							
+						<div style="order:0;" class="Rtable-cell Rtable-cell--head"><h5>Medium Term<br>(6 Months)</h5></div>
+						<div id="top-tracks-medium_term-grid">
+						</div>
+						<div style="order:0;" class="Rtable-cell Rtable-cell--head"><h5>Long Term<br>(All time)</h5></div>
+						<div id="top-tracks-long_term-grid">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	
+		<script id="logged-in-template" type="text/x-handlebars-template">
+			<div class="logged-in-text">
+				<h1>Statify</h1>
+				<h5>Stats for <br> {{display_name}}</h5>
+			</div>
+			<div class="logout-text">
+				<a href="?refresh_token={{refresh_token}}" target="_blank">Copy this link to share</a>
+				<a onclick="logout()" class="btn button" id="logout">Logout</a>
+			</div>
+		</script>
+
+		<script id="login-error-template" type="text/x-handlebars-template">
+			<div class="alert alert-danger">
+				<strong>Error:</strong> {{error}}
+			</div>
+		</script>
+		
+		<script id="top-artists-template-grid" type="text/x-handlebars-template">
+			{{#each this}}
+				<div style="order:{{inc @index}};" class="Rtable-cell {{#if @last}}Rtable-cell--foot{{/if}} {{@root.hidden}}">
+					<div class="media mt-2 mb-2 artist">
+						<div {{hide_string}} class="rank-container mr-3">
+							{{inc @index}}
+						</div>
+						<div class="artist-image-container mr-4">
+							<a {{hide_string}} href={{external_urls.spotify}}>
+								<img class="media-object artist-image" src="{{images.0.url}}" />
+							</a>
+						</div>		
+						<div {{hide_string}} class="media-body artist-info">
+							<h5 class="mt-0 mb-1">{{name}}</h5>
+						</div>
+					</div>
+				</div>
+			{{/each}}
+		</script>
+		
+		<script id="top-tracks-template-grid" type="text/x-handlebars-template">
+			{{#each this}}
+				<div style="order:{{inc @index}};" class="Rtable-cell {{#if @last}}Rtable-cell--foot{{/if}} {{@root.hidden}}">
+					<div class="media mt-2 mb-2 track">
+						<div {{hide_string}} class="rank-container mr-3">
+							{{inc @index}}
+						</div>
+						<div class="album-image-container mr-4">
+							<a {{hide_string}} href={{external_urls.spotify}}>
+								<img class="media-object album-image" src="{{album.images.0.url}}" />
+							</a>
+						</div>		
+						<div {{hide_string}} class="media-body artist-info">
+							<h5 class="mt-0 mb-1">{{name}}</h5>
+							{{#each artists}}{{#unless @first}}, {{/unless}}{{name}}{{/each}}
+						</div>
+					</div>
+				</div>
+			{{/each}}
+		</script>
+		
+		
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		
+		<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		
+		
+		<script>
+			(function ($) {
+				"use strict";
+				$.fn.responsiveTable = function() {
+					var toggleColumns = function($table) {
+						var selectedControls = [];
+						$table.find(".Tab").each( function() {
+							selectedControls.push(
+								$(this).attr("aria-selected") );
+						});
+						var cellCount = 0, colCount = 0;
+						var setNum = $table.find(".Rtable-cell").length / $table.find(".Tab").length;
+						$table.find(".Rtable-cell").each( function() {
+							$(this).addClass("hiddenSmall");
+							if( selectedControls[colCount] === "true" )
+							$(this).removeClass("hiddenSmall");
+							cellCount++;
+							if( cellCount % setNum === 0 ) colCount++;
+						});
+					};
+					$(this).each(function(){ toggleColumns($(this)); });
+					$(this).find(".Tab").click( function() {
+						$(this).attr("aria-selected","true").siblings().attr("aria-selected","false");
+						toggleColumns( $(this).parents(".Rtable") );    
+					});
+				};
+			}(jQuery));
+			$(".js-RtableTabs").responsiveTable();
+			(function ($) {
+				"use strict";
+				$.fn.responsiveTable = function() {
+					var toggleColumns = function($table) {
+						var selectedControls = [];
+						$table.find(".Tab").each( function() {
+							selectedControls.push(
+								$(this).attr("aria-selected") );
+						});
+						var cellCount = 0, colCount = 0;
+						var setNum = $table.find(".Rtable-cell").length / $table.find(".Tab").length;
+						$table.find(".Rtable-cell").each( function() {
+							$(this).addClass("hiddenSmall");
+							if( selectedControls[colCount] === "true" )
+							$(this).removeClass("hiddenSmall");
+							cellCount++;
+							if( cellCount % setNum === 0 ) colCount++;
+						});
+					};
+					$(this).each(function(){ toggleColumns($(this)); });
+					$(this).find(".Tab").click( function() {
+						$(this).attr("aria-selected","true").siblings().attr("aria-selected","false");
+						toggleColumns( $(this).parents(".Rtable") );    
+					});
+				};
+			}(jQuery));
+			$(".js-RtableTabs").responsiveTable();
+
+			function logout() {
+				function deleteCookie(name) {
+					document.cookie = name +'=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+				}
+				deleteCookie("access_token");
+				deleteCookie("refresh_token");
+				window.location.reload();
+			}
+			function displayArtists() {
+				$("#top-artists-container").show();
+				$("#top-tracks-container").hide();
+			}
+			function displayTracks() {
+				$("#top-artists-container").hide();
+				$("#top-tracks-container").show();
+			}
+			(function() {
+
+				Handlebars.registerHelper("inc", function(value, options)
+				{
+					return parseInt(value) + 1;
+				});
+
+				function getErrorParam() {
+					var url = new URL(window.location.href);
+					var error = url.searchParams.get("error");
+					if (error) console.log('Error: ', error);
+					return error;
+				}
+				function getRTParam() {
+					var url = new URL(window.location.href);
+					var refresh_token = url.searchParams.get("refresh_token");
+					return refresh_token;
+				}
+			
+				function setCookie(name,value,days) {
+				    var expires = "";
+				    if (days) {
+					var date = new Date();
+					date.setTime(date.getTime() + (days*24*60*60*1000));
+					expires = "; expires=" + date.toUTCString();
+				    }
+				    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+				}
+				function getCookie(name) {
+				    var nameEQ = name + "=";
+				    var ca = document.cookie.split(';');
+				    for(var i=0;i < ca.length;i++) {
+					var c = ca[i];
+					while (c.charAt(0)==' ') c = c.substring(1,c.length);
+					if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+				    }
+				    return null;
+				}
+				function eraseCookie(name) {   
+				    document.cookie = name+'=; Max-Age=-99999999;';  
+				}
+				function getNameAndUpdateWelcome() {
+					$.ajax({
+						url: 'https://api.spotify.com/v1/me',
+						headers: {
+							'Authorization': 'Bearer ' + access_token
+						},
+						success: function(response) {
+							var source = document.getElementById('logged-in-template').innerHTML,
+							template = Handlebars.compile(source),
+							placeholder = document.getElementById('logged-in');
+							response.refresh_token = getCookie("refresh_token")
+							placeholder.innerHTML = template(response);
+							$('#login').hide();
+							$('#logged-in').show();
+						},
+						json: true
+					});
+				}
+				function getAndUpdateTopArtists(time_range) {
+					$.ajax({
+						url: 'https://api.spotify.com/v1/me/top/artists',
+						headers: {
+							'Authorization': 'Bearer ' + access_token
+						},
+						data: {
+							'time_range': time_range
+						},
+						success: function(response) {
+							var source = document.getElementById('top-artists-template-grid').innerHTML,
+							template = Handlebars.compile(source),
+							placeholder = document.getElementById('top-artists-' + time_range + "-grid");
+							var i;
+							for (i=1;i<=20;i++) {
+								num_items = response.items.length;
+								if (num_items < i) {
+									var empty_item = {
+										hide_string: "hidden"
+									}
+									response.items.push(empty_item)
+								}
+								else {
+									response.items[i-1].hide_string = ""
+								}
+							}
+							if (time_range == "short_term")
+								response.items.hidden = "";
+							else
+								response.items.hidden = "hiddenSmall";
+							placeholder.outerHTML = template(response.items);
+						},
+						json: true
+					});
+				}
+				function getAndUpdateTopTracks(time_range) {
+					$.ajax({
+						url: 'https://api.spotify.com/v1/me/top/tracks',
+						headers: {
+							'Authorization': 'Bearer ' + access_token
+						},
+						data: {
+							'time_range': time_range
+						},
+						success: function(response) {
+							var source = document.getElementById('top-tracks-template-grid').innerHTML,
+							template = Handlebars.compile(source),
+							placeholder = document.getElementById('top-tracks-' + time_range + "-grid");
+							if (time_range == "short_term")
+								response.items.hidden = "";
+							else
+								response.items.hidden = "hiddenSmall";
+							placeholder.outerHTML = template(response.items);
+						},
+						json: true
+					});
+				}
+
+				var error = getErrorParam();
+				var refresh_token = getRTParam();
+				if (refresh_token !== null) {
+					setCookie("refresh_token", refresh_token)
+					eraseCookie("access_token")
+					window.location.replace('/');
+				}
+				else {
+					
+					$('#login').hide();
+					$('#error').hide();
+					$('#lower-page').hide();
+					if (error) {
+						var loginErrorSource = document.getElementById('login-error-template').innerHTML,
+						loginErrorTemplate = Handlebars.compile(loginErrorSource),
+						loginErrorPlaceholder = document.getElementById('login-error');	
+						loginErrorPlaceholder.innerHTML = loginErrorTemplate({error});
+						$('#login').show();
+						$('#error').show();
+						var access_token = getCookie("access_token");
+						var refresh_token = getCookie("refresh_token");
+						if (access_token || refresh_token) logout();
+					} else {
+						var access_token = getCookie("access_token");
+						var refresh_token = getCookie("refresh_token");
+						if (access_token) {
+							getNameAndUpdateWelcome();
+							getAndUpdateTopArtists("short_term");
+							getAndUpdateTopArtists("medium_term");
+							getAndUpdateTopArtists("long_term");
+							getAndUpdateTopTracks("short_term");
+							getAndUpdateTopTracks("medium_term");
+							getAndUpdateTopTracks("long_term");
+							$('#lower-page').show();
+							document.body.style.background = "#ffffff";
+						} else if (refresh_token) {
+							window.location.replace('/refresh_token');
+						} else {
+							$('#login').show();
+							$('#error').show();
+							$('#lower-page').hide();
+						}
+					}
+				}
+			})();
+	</script>
+</body>
+</html>
+

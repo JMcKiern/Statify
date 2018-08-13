@@ -1,0 +1,309 @@
+@color-base:		#495057;
+@color-base-light:	#6c757d;
+@color-accent:		#e9ecef;
+@color-accent-dark:	#dbdcdd;
+@color-dark:		#000000;
+@color-light:		#ffffff;
+
+@color-base:		#191414;
+@color-base-light:	#252525;
+@color-base-dark:	#191414;
+@color-accent:		#1db954;
+@color-dark:		#000000;
+@color-light:		#dddddd;
+
+/* Black and White */
+@color-base:		#000000;
+@color-base-light:	#ffffff;
+@color-accent:		#ffffff;
+@color-dark:		#000000;
+@color-light:		#f0f0f0;
+
+
+@color-base:		#0F3057;
+@color-base-light:	#00587A;
+@color-accent:		#008891;
+@color-dark:		#000000;
+@color-light:		#E7E7DE;
+
+/* Green and Yellow-ish */
+@color-base:		#0E9577;
+@color-base-light:	#04DEAD;
+@color-accent:		#F1EFB9;
+@color-dark:		#000000;
+@color-light:		#FBFAE1;
+@color-dark-light: 	#02AAAA;
+
+/* Black and Blue */
+@color-base:		#222831;
+@color-base-light:	#FFFFFF;
+@color-accent:		#EEEEEE;
+@color-dark:		#000000;
+@color-light:		#EEEEEE;
+@color-dark-light: 	#FFFFFF;
+
+html {
+	height:100%;
+	min-height:100%;
+}
+body {
+	background: url(audience-868074_1920.jpg) no-repeat center center fixed;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	font-family: 'Roboto', sans-serif;
+	min-height:100%;
+}
+			
+/* Welcome Page */
+	#login {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		width: 90%;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		text-align: center;
+	}
+	.welcome-text {
+		margin: 10px;
+		color: @color-light;
+		text-shadow: 0px 1px 4px @color-dark;
+	}
+	.title {
+		margin: 10px;
+		font-size: 2em;
+	}
+	.desc {
+		font-size: 1.5em;
+	}
+/* Button */
+	a:not([href]):not([tabindex]) {
+		color: @color-base;
+	}
+	a:not([href]):not([tabindex]):hover {
+		color: @color-base;
+	}
+	a:hover {
+		color: @color-base;
+	}
+	.button {
+		color: @color-base;
+		background-color: @color-base-light;
+		border-color: @color-base-light;
+		font-weight: bold;
+		border: solid 3px @color-base-light;
+		border-radius: 0.5em;
+	}
+	.button:hover {
+		border-color: @color-base;
+	}
+	.button:not(:disabled):not(.disabled).active {
+		color: @color-accent;
+		background-color: @color-base;
+		border-color: @color-base;
+	}
+	.button:focus,.button.focus,.button:active,.button.focus {
+		outline: none !important;
+		box-shadow: none;
+	}
+	.alert {
+		margin: 15px;
+		padding: 10px;
+		font-weight: bold;
+		border-radius: 0.5em;
+	}
+	#login-error {
+		display: flex;
+		justify-content: center;
+	}
+/* Stats Page */
+	#lower-page {	
+		background: @color-light;
+	}
+	#logged-in {
+		z-index: 2;
+		display: flex;
+		position: fixed;
+		width: 100%;
+		height: 110px;
+		align-items: center;
+		background: @color-base;
+	}
+	.logged-in-text {
+		margin: 10px;
+		color: @color-accent;
+	}
+	.logout-text {
+		position: absolute;
+		right: 10px;
+		color: @color-accent;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	#dummy-container {
+		height: 110px;
+	}			
+	.stats-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding-bottom: 10px;
+	}
+	.rank-container{
+		width: 30px;
+		text-align: right;
+	}
+	.artist-image-container, .album-image-container{
+		height: 75px;
+		width: 75px;
+	}
+	.artist-image, .album-image {
+		object-fit: cover;
+		height: 100%;
+		width: 100%;
+	}
+	.artist-image {
+		clip-path: circle();
+	}
+	.artist, .track {
+		align-items: center;
+	}
+	.artist-info {
+	}
+
+/* Variables
+================================== */
+@bw: 3px;  // border width
+
+
+/* Tables
+================================== */
+.Rtable {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 3em 0;
+  padding: 0;
+}
+.Rtable > .Rtable-cell  { width: 33.33%; }
+.Rtable-cell {
+  box-sizing: border-box;
+  flex-grow: 1;
+  width: 100%;  // Default to full width
+  padding: 0em 1.2em;
+  overflow: hidden; // Or flex might break
+  list-style: none;
+  border: solid @bw white;
+  background: @color-accent;
+  > h1, > h2, > h3, > h4, > h5, > h6 { margin: 0; }
+}
+
+@tableColour: @color-base;
+
+/* Apply styles
+================================== */
+.Rtable {
+  position: relative; top: @bw; left: @bw; //compensate for border offset
+}
+.Rtable-cell {
+  margin: -@bw 0 0 -@bw;  //border collapse offset
+  .Rtable-cell--light;
+  display: flex;
+  color: @color-dark;
+  background-color: @color-dark-light;
+}
+
+/* Cell styles
+================================== */
+.Rtable-cell--dark {
+  background-color: @color-base;
+  border-color: @color-base;
+}
+.Rtable-cell--light {
+  background-color: @color-light;
+  border-color: @color-base;
+}
+
+// Inherit header and footer styles
+.Rtable-cell--head { 
+	.Rtable-cell--dark;
+	padding: 0.8em 1.2em;
+	margin-bottom: @bw;
+  color: @color-accent;
+}
+
+@breakpoint: 1000px;
+
+/* Responsive
+==================================== */
+@media all and (max-width: @breakpoint) {
+  .Rtable--collapse  {
+    display: block;
+    > .Rtable-cell { width: 100% !important; }
+    > .Rtable-cell--foot { margin-bottom: 1em; }
+  }
+}
+
+// Non-Flex modernizer fallback
+.no-flexbox .Rtable {
+  display: block;
+  > .Rtable-cell { width: 100%; }
+  > .Rtable-cell--foot { margin-bottom: 1em; }
+}
+
+@media all and (max-width: @breakpoint) { 
+  .hiddenSmall {display: none; }
+}
+
+
+/* Tab Styling
+==================================== */
+@tabColour: @color-base;
+
+.Tablist {
+  display: flex;
+  flex-direction: row;
+  margin-left: -@bw;
+  @media all and (min-width: @breakpoint) { display: none; }
+}
+.Tab {
+	width: 33.33%;
+	color: @color-dark;
+	padding: 0.6em 1em;
+	margin: 0 @bw @bw 0;
+	text-align: center;
+	background-color: @color-base-light;
+	border: solid @bw @color-base-light;
+	border-bottom-width: 0;
+	border-radius: 0.5em 0.5em 0 0;
+	font-weight: bold;
+	color: @color-accent;
+	text-decoration: none;
+	transition: background-color 0.1s;
+	cursor: pointer;
+	&:hover, &:focus {
+		border-color: @color-base;
+		outline: none;
+	}
+	&[aria-selected="false"] {
+		color: @color-dark;
+	}
+	&[aria-selected="false"]:active {
+		margin-top: 0.2em;
+		padding-bottom: 0.4em;
+		color: @color-dark;
+	}
+	&[aria-selected="true"] {
+		background: @color-base;
+		border-color: @color-base;
+		cursor: default;
+		color: @color-accent;
+	}
+}
+.js-RtableTabs{
+	min-width: 240px;
+}
