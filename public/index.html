@@ -26,7 +26,7 @@
 			<div id="login-error">
 			</div>
 		</div>
-		<div id="lower-page" >
+		<div id="lower-page">
 			<div id="logged-in">
 			</div>
 			<div id="dummy-container">
@@ -155,6 +155,7 @@
 		
 		
 		<script>
+			// Table functions
 			(function ($) {
 				"use strict";
 				$.fn.responsiveTable = function() {
@@ -226,122 +227,120 @@
 				$("#top-artists-container").hide();
 				$("#top-tracks-container").show();
 			}
+			function getErrorParam() {
+				var url = new URL(window.location.href);
+				var error = url.searchParams.get("error");
+				if (error) console.log('Error: ', error);
+				return error;
+			}
+			function getRTParam() {
+				var url = new URL(window.location.href);
+				var refresh_token = url.searchParams.get("refresh_token");
+				return refresh_token;
+			}
+		
+			function setCookie(name,value,days) {
+				var expires = "";
+				if (days) {
+				var date = new Date();
+				date.setTime(date.getTime() + (days*24*60*60*1000));
+				expires = "; expires=" + date.toUTCString();
+				}
+				document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+			}
+			function getCookie(name) {
+				var nameEQ = name + "=";
+				var ca = document.cookie.split(';');
+				for(var i=0;i < ca.length;i++) {
+				var c = ca[i];
+				while (c.charAt(0)==' ') c = c.substring(1,c.length);
+				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+				}
+				return null;
+			}
+			function eraseCookie(name) {   
+				document.cookie = name+'=; Max-Age=-99999999;';  
+			}
+			function getNameAndUpdateWelcome(access_token) {
+				$.ajax({
+					url: 'https://api.spotify.com/v1/me',
+					headers: {
+						'Authorization': 'Bearer ' + access_token
+					},
+					success: function(response) {
+						var source = document.getElementById('logged-in-template').innerHTML,
+						template = Handlebars.compile(source),
+						placeholder = document.getElementById('logged-in');
+						response.refresh_token = getCookie("refresh_token")
+						placeholder.innerHTML = template(response);
+						$('#login').hide();
+						$('#logged-in').show();
+					},
+					json: true
+				});
+			}
+			function getAndUpdateTopArtists(time_range, access_token) {
+				$.ajax({
+					url: 'https://api.spotify.com/v1/me/top/artists',
+					headers: {
+						'Authorization': 'Bearer ' + access_token
+					},
+					data: {
+						'time_range': time_range
+					},
+					success: function(response) {
+						var source = document.getElementById('top-artists-template-grid').innerHTML,
+						template = Handlebars.compile(source),
+						placeholder = document.getElementById('top-artists-' + time_range + "-grid");
+						var i;
+						for (i=1;i<=20;i++) {
+							num_items = response.items.length;
+							if (num_items < i) {
+								var empty_item = {
+									hide_string: "hidden"
+								}
+								response.items.push(empty_item)
+							}
+							else {
+								response.items[i-1].hide_string = ""
+							}
+						}
+						if (time_range == "short_term")
+							response.items.hidden = "";
+						else
+							response.items.hidden = "hiddenSmall";
+						placeholder.outerHTML = template(response.items);
+					},
+					json: true
+				});
+			}
+			function getAndUpdateTopTracks(time_range, access_token) {
+				$.ajax({
+					url: 'https://api.spotify.com/v1/me/top/tracks',
+					headers: {
+						'Authorization': 'Bearer ' + access_token
+					},
+					data: {
+						'time_range': time_range
+					},
+					success: function(response) {
+						var source = document.getElementById('top-tracks-template-grid').innerHTML,
+						template = Handlebars.compile(source),
+						placeholder = document.getElementById('top-tracks-' + time_range + "-grid");
+						if (time_range == "short_term")
+							response.items.hidden = "";
+						else
+							response.items.hidden = "hiddenSmall";
+						placeholder.outerHTML = template(response.items);
+					},
+					json: true
+				});
+			}
 			(function() {
-
 				Handlebars.registerHelper("inc", function(value, options)
 				{
 					return parseInt(value) + 1;
 				});
-
-				function getErrorParam() {
-					var url = new URL(window.location.href);
-					var error = url.searchParams.get("error");
-					if (error) console.log('Error: ', error);
-					return error;
-				}
-				function getRTParam() {
-					var url = new URL(window.location.href);
-					var refresh_token = url.searchParams.get("refresh_token");
-					return refresh_token;
-				}
-			
-				function setCookie(name,value,days) {
-				    var expires = "";
-				    if (days) {
-					var date = new Date();
-					date.setTime(date.getTime() + (days*24*60*60*1000));
-					expires = "; expires=" + date.toUTCString();
-				    }
-				    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
-				}
-				function getCookie(name) {
-				    var nameEQ = name + "=";
-				    var ca = document.cookie.split(';');
-				    for(var i=0;i < ca.length;i++) {
-					var c = ca[i];
-					while (c.charAt(0)==' ') c = c.substring(1,c.length);
-					if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-				    }
-				    return null;
-				}
-				function eraseCookie(name) {   
-				    document.cookie = name+'=; Max-Age=-99999999;';  
-				}
-				function getNameAndUpdateWelcome() {
-					$.ajax({
-						url: 'https://api.spotify.com/v1/me',
-						headers: {
-							'Authorization': 'Bearer ' + access_token
-						},
-						success: function(response) {
-							var source = document.getElementById('logged-in-template').innerHTML,
-							template = Handlebars.compile(source),
-							placeholder = document.getElementById('logged-in');
-							response.refresh_token = getCookie("refresh_token")
-							placeholder.innerHTML = template(response);
-							$('#login').hide();
-							$('#logged-in').show();
-						},
-						json: true
-					});
-				}
-				function getAndUpdateTopArtists(time_range) {
-					$.ajax({
-						url: 'https://api.spotify.com/v1/me/top/artists',
-						headers: {
-							'Authorization': 'Bearer ' + access_token
-						},
-						data: {
-							'time_range': time_range
-						},
-						success: function(response) {
-							var source = document.getElementById('top-artists-template-grid').innerHTML,
-							template = Handlebars.compile(source),
-							placeholder = document.getElementById('top-artists-' + time_range + "-grid");
-							var i;
-							for (i=1;i<=20;i++) {
-								num_items = response.items.length;
-								if (num_items < i) {
-									var empty_item = {
-										hide_string: "hidden"
-									}
-									response.items.push(empty_item)
-								}
-								else {
-									response.items[i-1].hide_string = ""
-								}
-							}
-							if (time_range == "short_term")
-								response.items.hidden = "";
-							else
-								response.items.hidden = "hiddenSmall";
-							placeholder.outerHTML = template(response.items);
-						},
-						json: true
-					});
-				}
-				function getAndUpdateTopTracks(time_range) {
-					$.ajax({
-						url: 'https://api.spotify.com/v1/me/top/tracks',
-						headers: {
-							'Authorization': 'Bearer ' + access_token
-						},
-						data: {
-							'time_range': time_range
-						},
-						success: function(response) {
-							var source = document.getElementById('top-tracks-template-grid').innerHTML,
-							template = Handlebars.compile(source),
-							placeholder = document.getElementById('top-tracks-' + time_range + "-grid");
-							if (time_range == "short_term")
-								response.items.hidden = "";
-							else
-								response.items.hidden = "hiddenSmall";
-							placeholder.outerHTML = template(response.items);
-						},
-						json: true
-					});
-				}
 
 				var error = getErrorParam();
 				var refresh_token = getRTParam();
@@ -351,7 +350,6 @@
 					window.location.replace('/');
 				}
 				else {
-					
 					$('#login').hide();
 					$('#error').hide();
 					$('#lower-page').hide();
@@ -369,13 +367,13 @@
 						var access_token = getCookie("access_token");
 						var refresh_token = getCookie("refresh_token");
 						if (access_token) {
-							getNameAndUpdateWelcome();
-							getAndUpdateTopArtists("short_term");
-							getAndUpdateTopArtists("medium_term");
-							getAndUpdateTopArtists("long_term");
-							getAndUpdateTopTracks("short_term");
-							getAndUpdateTopTracks("medium_term");
-							getAndUpdateTopTracks("long_term");
+							getNameAndUpdateWelcome(access_token);
+							getAndUpdateTopArtists("short_term", access_token);
+							getAndUpdateTopArtists("medium_term", access_token);
+							getAndUpdateTopArtists("long_term", access_token);
+							getAndUpdateTopTracks("short_term", access_token);
+							getAndUpdateTopTracks("medium_term", access_token);
+							getAndUpdateTopTracks("long_term", access_token);
 							$('#lower-page').show();
 							document.body.style.background = "#ffffff";
 						} else if (refresh_token) {
@@ -391,4 +389,3 @@
 	</script>
 </body>
 </html>
-
