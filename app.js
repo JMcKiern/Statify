@@ -1,3 +1,5 @@
+"use strict";
+
 // Include the cluster module
 var cluster = require('cluster');
 
@@ -21,21 +23,30 @@ if (cluster.isMaster) {
 
 // Code to run if we're in a worker process
 } else {
-	"use strict";
-	var AWS = require('aws-sdk');
+	// Check if on AWS
+	var AWS;
+	try {
+		AWS = require('aws-sdk');
+	} catch (e) {
+		if (e.code === 'MODULE_NOT_FOUND') {
+			AWS = null;
+		}
+	}
+
 	var express = require('express');
 	var request = require('request');
 	var querystring = require('querystring');
 	var cookieParser = require('cookie-parser');
 
-	AWS.config.region = process.env.REGION
+	if (AWS !== null)
+		AWS.config.region = process.env.REGION
 
 	var client_id = process.env.client_id;
 	var client_secret = process.env.client_secret;
 	var redirect_uri = process.env.redirect_uri;
 
 	var port = process.env.PORT || 3000;
-	
+
 	var app = express();
 
 	var generateRandomString = function(length) {
