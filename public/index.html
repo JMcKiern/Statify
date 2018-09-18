@@ -17,7 +17,7 @@
 	</head>
 
 	<body>
-		<div id="login">
+		<div id="login" style="display: none;">
 			<div class="welcome-text">
 				<div class="title">Statify</div>
 				<div class="desc">Connect to Spotify to view top artists and tracks</div>
@@ -26,7 +26,7 @@
 			<div id="login-error">
 			</div>
 		</div>
-		<div id="lower-page">
+		<div id="lower-page" style="display: none;">
 			<div id="logged-in">
 			</div>
 			<div id="dummy-container">
@@ -350,9 +350,7 @@
 					window.location.replace('/');
 				}
 				else {
-					$('#login').hide();
-					$('#error').hide();
-					$('#lower-page').hide();
+					$('#error').hide(); // Does #error even exist?
 					if (error) {
 						var loginErrorSource = document.getElementById('login-error-template').innerHTML,
 						loginErrorTemplate = Handlebars.compile(loginErrorSource),
