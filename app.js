@@ -1,5 +1,38 @@
 "use strict";
 
+// Check if on AWS
+var AWS;
+try {
+	AWS = require('aws-sdk');
+} catch (e) {
+	if (e.code === 'MODULE_NOT_FOUND') {
+		AWS = null;
+	}
+}
+
+// Load arguments
+var port = process.env.PORT || 3000;
+if (AWS !== null) {
+	AWS.config.region = process.env.REGION
+	var client_id = process.env.client_id;
+	var client_secret = process.env.client_secret;
+	var redirect_uri = process.env.redirect_uri;
+}
+else {
+	// If not running on AWS variables should be entered as commandline arguments
+	var args = process.argv;
+	if (!(args.length == 4 || args.length == 5)) {
+		console.log('Must enter 2 or 3 commandline arguments')
+		console.log('node.exe app.js <client_id> <client_secret> [<redirect_uri>]')
+		console.log('Exiting')
+		console.log('\n')
+		process.exit(-1)
+	}
+	var client_id = args[2];
+	var client_secret = args[3];
+	var redirect_uri = args[4] || 'http://localhost:' + port.toString() + '/callback';
+}
+
 // Include the cluster module
 var cluster = require('cluster');
 
@@ -23,29 +56,10 @@ if (cluster.isMaster) {
 
 // Code to run if we're in a worker process
 } else {
-	// Check if on AWS
-	var AWS;
-	try {
-		AWS = require('aws-sdk');
-	} catch (e) {
-		if (e.code === 'MODULE_NOT_FOUND') {
-			AWS = null;
-		}
-	}
-
 	var express = require('express');
 	var request = require('request');
 	var querystring = require('querystring');
 	var cookieParser = require('cookie-parser');
-
-	if (AWS !== null)
-		AWS.config.region = process.env.REGION
-
-	var client_id = process.env.client_id;
-	var client_secret = process.env.client_secret;
-	var redirect_uri = process.env.redirect_uri;
-
-	var port = process.env.PORT || 3000;
 
 	var app = express();
 
@@ -166,6 +180,6 @@ if (cluster.isMaster) {
 
 
 	var server = app.listen(port, function () {
-		console.log('Server running at ' + redirect_uri + ':' + port + '/');
+		console.log('Server running at ' + redirect_uri);
 	});
 }
