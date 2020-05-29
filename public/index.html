@@ -20,7 +20,7 @@
 		<div id="login" style="display: none;">
 			<div class="welcome-text">
 				<div class="title">Statify</div>
-				<div class="credit">By Jack McKiernan</div>
+				<div class="credit">By <a href="https://github.com/JMcKiern">Jack McKiernan</a></div>
 				<div class="desc">Connect to Spotify to view top artists and tracks</div>
 			</div>
 			<a href="/login" class="btn button">Connect</a>
@@ -90,11 +90,12 @@
 	
 		<script id="logged-in-template" type="text/x-handlebars-template">
 			<div class="logged-in-text">
-				<h1>Statify <small>by Jack McKiernan</small></h1>
-				<h5>Stats for Spotify<br>{{display_name}}</h5>
+				<h1>Statify </h1>
+				<h5>By <a href="https://github.com/JMcKiern">Jack McKiernan</a></h5>
+				<h5>Stats for Spotify<br>Account: <b>{{display_name}}</b></h5>
 			</div>
 			<div class="logout-text">
-				<a href="?refresh_token={{refresh_token}}" target="_blank">Copy this link to share</a>
+				<a href="?refresh_token={{refresh_token}}" target="_blank"><center>Copy this link<br>to share</center></a>
 				<a onclick="logout()" class="btn button" id="logout">Logout</a>
 			</div>
 		</script>
